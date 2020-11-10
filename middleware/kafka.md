@@ -19,3 +19,20 @@ wget https://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.6.2/apache-zookeeper
 
 tar zxvf apache-zookeeper-3.6.2-bin.tar.gz
 
+#### Kafka
+
+bin/kafka-topics.sh --zookeeper 127.0.0.1:2181/kafka --create --topic topic-demo --replication-factor 1 --partitions 4
+
+bin/kafka-topics.sh --zookeeper 127.0.0.1:2181/kafka --list
+
+bin/kafka-topics.sh --zookeeper 127.0.0.1:2181/kafka --describe --topic topic-demo
+
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic topic-demo
+
+bin/kafka-server-start.sh config/server.properties
+
+bin/kafka-server-stop.sh
+
+172.17.0.17
