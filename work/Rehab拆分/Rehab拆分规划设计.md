@@ -18,9 +18,19 @@
 
 ![1612400393270](D:\person\knowledge\work\Rehab拆分\Rehab技术架构now.png)
 
-核心模型操作
+#### 核心模型操作
 
 
+
+![Rehab业务模型](D:\person\knowledge\work\Rehab拆分\Rehab业务模型.png)
+
+##### 存在的问题
+
+Rehab核心模型关系是Project  -> Task/SubTask -> Wo 三级关系
+
+在Assessment 阶段后，SubTask会生成对应的WO,  形成了互联耦合关系，在很多业务场景下修改信息或状态变更都需要反向同步信息
+
+ 目前的One App应用，有些业务场景是在Project级别，会产生批量WO更新操作，出现性能问题
 
 ### 拆分方案概述
 
@@ -38,31 +48,19 @@
 
 ![1612486889657](D:\person\knowledge\work\Rehab拆分\RehabNewService_deploy.png)
 
-#### 领域划分
-
-![1612430949053](D:\person\knowledge\work\Rehab拆分\Rehab_Domain.png)
-
-Project表示Project管理;Assessment表示Project Line Item 管理;Plan表示任务生成编排与Dispatch管理
-
-Execute 表示任务实施管理;QA表示任务实施结果检查管理;Billing 表示Project结算
-
-#### 业务架构
-
 
 
 #### 实现方法
 
-产品，测试， 开发
-
-边开发边集成?
+梳理现有的Rehab当前业务场景和流程逻辑，形成完整需求文档.  对现有需求优化和重新规划，设计新的Rehab Service， 具体的实现策略可采用MVP，新开发的每个端API逐步适配接入等 
 
 #### 迁移路径
 
-按Client
+按Client?
 
-按数据版本
+按Project数据版本?
 
-直接数据同步(新旧兼容)
+直接数据同步(新旧兼容)？			
 
 ### WO解耦方案
 
@@ -71,4 +69,4 @@ Execute 表示任务实施管理;QA表示任务实施结果检查管理;Billing 
 ### 其它问题
 
 1. 依赖的公共基础数据如何处理?
-2. 依赖的公共模块?
+2. 依赖的其它公共模块?
