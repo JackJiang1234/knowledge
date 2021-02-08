@@ -26,7 +26,7 @@
 
 ##### 存在的问题
 
-Rehab核心模型关系是Project  -> Task/SubTask -> Wo 三级关系
+Rehab核心模型关系是Project  -> LineItem/Task/SubTask -> Wo 三级关系
 
 在Assessment 阶段后，SubTask会生成对应的WO,  形成了互联耦合关系，在很多业务场景下修改信息或状态变更都需要反向同步信息
 
@@ -37,14 +37,14 @@ Rehab核心模型关系是Project  -> Task/SubTask -> Wo 三级关系
 | 方案名称           | 说明                                                         | 优缺点(风险)                                                 |
 | ------------------ | :----------------------------------------------------------- | ------------------------------------------------------------ |
 | 就地改造           | 从技术层面上出发将Rehab从One系统拨离开来,<br/> 将代码和数据进行分离，实现可独立发布。实现方法是从Moon代码仓库复制一份源代码，梳理代码和数据表，只保留Rehab相关的逻辑代码和存储表。 | 分离的工作量比较大和复杂，虽然可以实现了独立发布目标，但对后续业务开发没有太大改善 |
-| WO解耦             | 现在的Rehab比较重度依赖One系统的WO功能, 包括Schedule, Dispatch, QC, Check in/out, Invoice等。由于WO是One通用的业务流程处理, 业务逻辑比较重量级和复杂，Rehab实际只使用其中一部分功能。目前许多的开发痛点与WO相关，如批量WO操作性能差等。此方案的思路是将Rehab与One 的WO解耦，定制适合Rehab自身的WO业务模型 | 需要梳理Rehab WO业务逻辑和UI效果，对能提升后续业务开发有部分改善和部分实现随时发布的目标 |
+| WO解耦             | 现在的Rehab比较重度依赖One系统的WO功能, 包括Schedule, Dispatch, QC, Check in/out, Invoice等。由于WO是One通用的业务流程处理, 业务逻辑比较重量级和复杂，Rehab实际只使用其中一部分功能。目前许多的开发痛点与WO相关，如批量WO操作性能差等。此方案的思路是将Rehab与One 的WO解耦，定制适合Rehab自身的WO业务模型 | 需要梳理Rehab WO业务逻辑和UI效果，单独拆分WO需要与现有Rehab进行数据同步,对能提升后续业务开发有部分改善和部分实现随时发布的目标 |
 | 核心重来，保留外观 | 保留现有的终端外观界面，后端的Rehab业务模型重新设计开发新的Rehab服务, 新的Rehab服务实现要满足现有的Rehab业务流程和效果，在现有的Web接入层实现适配，接入新的Rehab服务 | 需要整体梳理Rehab业务流程和逻辑，开发周期和工作量会比较大，基本可以实现独立的目标和提高后续的开发效率 |
 | 洗心革面，彻底重来 | 完全重新设计开发，包适主要UI                                 |                                                              |
 |                    |                                                              |                                                              |
 
 ### Rehab新服务设计
 
-#### 接入架构
+#### 技术架构
 
 ![1612486889657](D:\person\knowledge\work\Rehab拆分\RehabNewService_deploy.png)
 
@@ -64,7 +64,23 @@ Rehab核心模型关系是Project  -> Task/SubTask -> Wo 三级关系
 
 ### WO解耦方案
 
+##### 技术架构
 
+![1612745141392](D:\person\knowledge\work\Rehab拆分\wo_dis.png)
+
+##### 涉及的业务场景
+
+| 角色      | 场景描述                                                     |      |
+| --------- | ------------------------------------------------------------ | ---- |
+| OM        | bundle, schedule, dispatch, change order, qc, signoff, complete |      |
+| Affiliate | accept, assign, check in/out                                 |      |
+| Client    | change order                                                 |      |
+
+ 在Assessment阶段后，基本上比较核心的操作都牵涉WO
+
+##### 其它考虑
+
+如果单独解耦WO, 由于存在关联关系，需要根据业务场景保持WO与Task数据同步
 
 ### 其它问题
 
