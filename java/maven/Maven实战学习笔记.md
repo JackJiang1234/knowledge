@@ -82,6 +82,8 @@ classifier: 定义构建输出的一些附属构件
 
 #### 依赖定义
 
+http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
+
 groupId, artifactId, Versin 依赖的基本坐标
 
 type 依赖的类型
@@ -134,9 +136,11 @@ http://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html
 
 ### 版本
 
-
+https://cwiki.apache.org/confluence/display/MAVENOLD/Dependency+Mediation+and+Conflict+Resolution#DependencyMediationandConflictResolution-DependencyVersionRanges
 
 ### Profile
+
+http://maven.apache.org/guides/introduction/introduction-to-profiles.html
 
 ### 参考
 
