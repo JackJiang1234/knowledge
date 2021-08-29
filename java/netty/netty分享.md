@@ -10,6 +10,8 @@
 
 分离技术复杂度和业务复杂度关注点
 
+连接 C10K, C10M
+
 #### 典型网络程序结构
 
 ![img](https://netty.io/images/components.png)
