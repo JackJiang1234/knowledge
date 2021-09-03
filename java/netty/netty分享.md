@@ -4,7 +4,7 @@
 
 netty是基于异步和事件驱动网络编程框架，同时支持客户端与服务端编程。提供优雅一致的编程模型和多种协议网络程序基础设施支持，方便用户快速开发高性能高可靠的网络应用程序。这段介绍比较"官方"，让我们回到原点，看看一个典型的服务器网络程序结构应该是怎么样的:
 
-![image-20210830235627613](D:\person\knowledge\java\netty\network_basic_struct.png)
+![image-20210903235322880](D:\person\knowledge\java\netty\network_basic_struct.png)
 
  标记浅绿色的模块是属于技术领域，我们希望通过框架简单配置或声明就能达到我们的需要，黄色模块属于业务领域，我们希望业务逻辑可以单独开发测试，并能轻松组装，netty对以上都提供了完善的支持，按软件工程角度，分离技术复杂度和业务复杂度关注点，模块松藕后设计
 
@@ -30,10 +30,8 @@ while(true) {
     Socket socket = serverSocket.accept();                 
     new Thread(()->{
         BufferedReader input = new BufferedReader(nwe InputStreamReader(socket.getInputStream()));
-    	// 数据读取业务处理 input.readLine()
-    
+    	// 数据读取业务处理 
     	// 进行业务处理
-    
     	// 写入结果
     	PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
     	out.println("result");   
@@ -53,68 +51,36 @@ BIO模型本质网络请求和线程是一对一的关系，
 
 我们期望的理想效果是一个线程可以处理N个请求，N当然是越多越好，问题的关键在那里？现有的阻塞API本质请求处理模型是网络操作都是one by one, 不能实现我们想要的效果。我们再将网络相关的处理再拆解一下，就是网络连接和读写操作，现实中最高效的通信模型是广播通知机制，下面我们来看一下NIO模型
 
-![img](https://static001.geekbang.org/resource/image/ea/1f/eafed0787b82b0b428e1ec0927029f1f.png)
+非阻塞和事件通知派发
+
+
 
 #### NIO (Non Blocking IO)
 
 ```java
 public class NioServerTest {
     public static void main(String[] args) throws Exception{
-        ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-        serverSocketChannel.bind(new InetSocketAddress(8888), 1024);
+        var serverSocketChannel = ServerSocketChannel.open().bind();
         serverSocketChannel.configureBlocking(false);
-
-        Selector selector = Selector.open();
+        var selector = Selector.open();
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
         while (true) {
-            selector.select(1000);
-            Set<SelectionKey> selectionKeySet = selector.selectedKeys();
-            for (SelectionKey selectionKey : selectionKeySet) {
-                if(!selectionKey.isValid()) {
-                    continue;
+            selector.select();
+            var readyKeys = selector.selectedKeys();
+            foreach(SelectionKey key in readyKeys) {
+                if (key.isAcceptable()) {
+                    accept(key, selector);//connection ready
                 }
-                if (selectionKey.isAcceptable()) {
-                    accept(selectionKey, selector);
+                if (key.isReadable()) {
+                    read(key); //read ready
                 }
-                if (selectionKey.isReadable()) {
-                    read(selectionKey);
+                if (key.isWritable()){
+                    write(key) //write ready
                 }
             }
             selectionKeySet.clear();
         }
-    }
-
-    private static void accept(SelectionKey selectionKey, Selector selector) throws Exception{
-        ServerSocketChannel ssc = ((ServerSocketChannel) selectionKey.channel());
-        SocketChannel socketChannel = ssc.accept();
-        socketChannel.configureBlocking(false);
-        selectionKey.interestOps(SelectionKey.OP_READ)
-    }
-
-    private static String read(SelectionKey selectionKey) throws Exception{
-        SocketChannel socketChannel = ((SocketChannel) selectionKey.channel());
-        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-        int len = socketChannel.read(byteBuffer);
-        if (len < 0) {
-            socketChannel.close();
-            selectionKey.cancel();
-            return "";
-        } else if(len == 0) { 
-            return "";
-        }
-        byteBuffer.flip();
-        selectionKey.interestOps(SelectionKey.OP_WRITE)
-        doWrite(selectionKey, "Hello Nio");
-        return new String(byteBuffer.array(), 0, len);
-    }
-
-    private static void doWrite(SelectionKey selectionKey, String responseMessage) throws Exception{
-        SocketChannel socketChannel = ((SocketChannel) selectionKey.channel());
-        ByteBuffer byteBuffer = ByteBuffer.allocate(responseMessage.getBytes().length);
-        byteBuffer.put(responseMessage.getBytes());
-        byteBuffer.flip();
-        socketChannel.write(byteBuffer);
     }
 }
 
